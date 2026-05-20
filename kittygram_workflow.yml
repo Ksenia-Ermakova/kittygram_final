@@ -104,5 +104,5 @@ jobs:
         run: |
           curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d parse_mode=Markdown \
-          -d text="Деплой Kittygram успешен!%0A Автор: ${{ github.actor }}%0A Коммит: ${{ github.event.commits[0].message }}%0A Ссылка: https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          -d parse_mode=HTML \
+          -d text="<b>Деплой Kittygram успешен!</b>%0A<b> Автор:</b> ${{ github.actor }}%0A<b> Коммит:</b> $(echo '${{ github.event.commits[0].message }}' | sed 's/[<>]/_/g')%0A<b> Ссылка:</b> https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
