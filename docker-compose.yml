@@ -1,40 +1,40 @@
 version: "3"
-
+# Описание томов (persistent storage) для хранения данных
 volumes:
-  pg_data:
-  static:
-  media:
+  pg_data: # Данные PostgreSQL (чтобы не терялись при перезапуске)
+  static: # Статические файлы (CSS, JS, картинки фронтенда)
+  media: # Медиафайлы пользователей (картинки котиков)
 
 services:
   db:
-    image: postgres:13
-    env_file: .env
+    image: postgres:13 # Используем готовый образ PostgreSQL версии 13
+    env_file: .env # Загружаем переменные из файла .env
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data # Подключаем том pg_data к папке данных Postgres
 
   backend:
-    build: ./backend/
-    env_file: .env
+    build: ./backend/ # Собираем образ из Dockerfile в папке backend/
+    env_file: .env # Загружаем переменные из .env
     volumes:
-      - static:/app/collected_static
-      - media:/app/media
+      - static:/app/collected_static # Подключаем том static для доступа к собранной статике
+      - media:/app/media # Подключаем том media для доступа к загруженным файлам
     depends_on:
-      - db
+      - db # Запускаем backend только после того, как запустится db
 
   frontend:
-    build: ./frontend/
+    build: ./frontend/ # Собираем образ из Dockerfile в папке frontend/
     env_file: .env
-    command: cp -r /app/build/. /static/
+    command: cp -r /app/build/. /static/ # После сборки копируем файлы в том static
     volumes:
-      - static:/static
+      - static:/static # Подключаем том static, чтобы nginx мог прочитать файлы
 
   gateway:
-    build: ./nginx/
+    build: ./nginx/ # Собираем образ из Dockerfile в папке nginx/
     env_file: .env
     ports:
-      - "9000:80"
+      - "9000:80" # Пробрасываем порт 9000 хоста на порт 80 контейнера
     volumes:
-      - static:/static
-      - media:/media
+      - static:/static # Подключаем том static для раздачи статики
+      - media:/media # Подключаем том media для раздачи медиафайлов
     depends_on:
-      - backend
+      - backend # Запускаем gateway только после того, как запустится backend
